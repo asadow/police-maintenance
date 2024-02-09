@@ -1,5 +1,7 @@
 box::use(
-  rhandsontable[...]
+  rhandsontable[...],
+  stringr[str_sort],
+  app/logic/constant[building, trade, employee],
 )
 
 hot_format <- function(.data) {
@@ -23,6 +25,16 @@ hot_format <- function(.data) {
       halign = "htCenter"
     ) |>
     hot_col("Issue", halign = "htLeft") |>
+    hot_col(
+      col = c(
+        "Trade Responsible",
+        "Trade Attended 1", "Trade Attended 2",
+        "Staff Attended 1", "Staff Attended 2"),
+      type = "dropdown", source = str_sort(trade$trade)
+    ) |>
+  #   ,
+  # "Staff Called 1", "Staff Called 2"
+    hot_col("Building", type = "dropdown", source = str_sort(building$building)) |>
     hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
     hot_validate_numeric(cols = "Work Order #", min = 100000, max = 999999) |>
     hot_validate_numeric(cols = "Hour", min = 0, max = 12) |>

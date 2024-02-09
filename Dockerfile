@@ -1,3 +1,5 @@
+## Using older version of R due to rhandsontable date bug
+## renv.lock was changed to reflect 4.1.3
 FROM openanalytics/r-ver:4.1.3
 
 LABEL maintainer="Adam Sadowski <asadowsk@uoguelph.ca>"
@@ -19,11 +21,9 @@ RUN apt-get update && apt-get install -y \
     libmpfr-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# basic shiny functionality
-RUN R -q -e "install.packages(c('shiny', 'rmarkdown'))"
-
 # install dependencies of the app
-RUN R -q -e "install.packages('rhandsontable')"
+COPY renv.lock .
+RUN R -q -e "renv::init();renv::restore()"
 
 # copy the app to the image
 RUN mkdir /root/police-maintenance
@@ -33,4 +33,6 @@ COPY Rprofile.site /usr/local/lib/R/etc/
 
 EXPOSE 3838
 
+## Can change to rhino::app() but need to change WORKDIR first as
+## rhino::app() does not take a path?
 CMD ["R", "-q", "-e", "shiny::runApp('/root/police-maintenance')"]

@@ -39,6 +39,7 @@ onStop(function() {
 employee <- dbReadTable(pool, "employee") |>
   mutate(name = glue("{given_names} {surname}")) |>
   as.data.frame()
+
 #' @export
 trade <- dbReadTable(pool, "trade") |>
   mutate(trade = glue("{trade} - {trade_desc}")) |>
@@ -51,8 +52,9 @@ building <- dbReadTable(pool, "workorder_building") |>
 trade_factor <- factor(NA_character_, levels = str_sort(trade$trade))
 staff_factor <- factor(NA_character_, levels = str_sort(unique(employee$name)))
 
+## Source of the initial database table
 #' @export
-DFF <- tibble(
+DF <- tibble(
   hour = NA_integer_,
   minute = NA_integer_,
   am_pm = factor(NA_character_, levels = c("am", "pm")),
@@ -78,26 +80,3 @@ DFF <- tibble(
   rename_with(\(x) x |> str_replace_all("_", " ") |> str_to_title()) |>
   rename("am/pm" = "Am Pm") |>
   add_rows(2)
-
-#' @export
-DF <- dbReadTable(pool, "police_maintenance") |>
-  rename_with(
-    \(x) str_replace_all(x, "\\.", " ") |> str_trim(),
-    everything()
-  ) |>
-  rename("am/pm" = "am pm", "Work Order #" = "Work Order")
-
-
-DF <- dbReadTable(conn, "police_maintenance") |>
-  rename_with(
-    \(x) str_replace_all(x, "\\.", " ") |> str_trim(),
-    everything()
-  ) |>
-  rename("am/pm" = "am pm", "Work Order #" = "Work Order")
-
-#' @export
-current <- function() {
-  dm <- dm_from_con(conn, "police_maintenance")
-  # dbDisconnect(conn)
-  return(dm)
-}

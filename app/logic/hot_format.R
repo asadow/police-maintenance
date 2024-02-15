@@ -13,7 +13,7 @@ hot_format <- function(.data) {
       allowInvalid = TRUE,
       copyable = TRUE,
       strict = FALSE,
-      colWidths = c(50, 70, 75, 100, 75, 250, 70, 200, 100,
+      colWidths = c(50, 70, 75, 100, 250, 70, 200, 100,
                     rep(200, 7), 130, 130),
       renderer = "
              function (instance, td, row, col, prop, value, cellProperties) {
@@ -25,11 +25,14 @@ hot_format <- function(.data) {
       halign = "htCenter"
     ) |>
     hot_col("Issue", halign = "htLeft") |>
+    # hot_col(col = "am/pm", type = "dropdown", source = c("am", "pm")) |>
     hot_col(
       col = c(
         "Trade Responsible",
         "Trade Attended 1", "Trade Attended 2",
-        "Staff Attended 1", "Staff Attended 2"),
+        "Staff Attended 1", "Staff Attended 2",
+        "Staff Called 1", "Staff Called 2"
+        ),
       type = "dropdown", source = str_sort(trade$trade)
     ) |>
   #   ,
@@ -38,5 +41,6 @@ hot_format <- function(.data) {
     hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
     hot_validate_numeric(cols = "Work Order #", min = 100000, max = 999999) |>
     hot_validate_numeric(cols = "Hour", min = 0, max = 12) |>
-    hot_validate_numeric(cols = "Minute", min = 0, max = 60)
+    hot_validate_numeric(cols = "Minute", min = 0, max = 60) |>
+    hot_validate_character(col = "am/pm", choices = c("am", "pm"))
 }

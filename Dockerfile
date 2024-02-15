@@ -1,6 +1,6 @@
 ## Using older version of R due to rhandsontable date bug
-## renv.lock was changed to reflect 4.1.3
-FROM openanalytics/r-ver:4.1.3
+## renv.lock was changed to reflect 4.2.2
+FROM openanalytics/r-ver:4.2.2
 
 LABEL maintainer="Adam Sadowski <asadowsk@uoguelph.ca>"
 

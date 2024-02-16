@@ -5,6 +5,7 @@ box::use(
   dm[...],
   dplyr[...],
   lubridate[...],
+  shinylogs[track_usage, store_json],
   tibble[column_to_rownames, rownames_to_column],
   app/logic/add_rows[add_rows],
   app/logic/constant[pool, conn],
@@ -26,16 +27,17 @@ ui <- function(id) {
 
 #' @export
 server <- function(id) {
+  track_usage(storage_mode = store_json(path = "logs/"))
+
   moduleServer(id, function(input, output, session) {
 
     observe({
       if (!is.null(input$hot)) {
-        x <- input$hot |>
-          hot_to_r()
+        x <- input$hot |> hot_to_r()
         x <- x |>
           mutate(
             Date = input$date,
-            Id = row_number() + as.numeric(Date) * nrow(!!x)
+            Id = paste0(row_number(), " - ", Date)
           )
         dm <- dm(police_maintenance = x)
         dm <- copy_dm_to(conn, dm, temporary = TRUE)
@@ -46,13 +48,12 @@ server <- function(id) {
     })
 
     df_init <- reactive({
-        x <- read_table() |>
-          filter(Date == input$date |> as.character()) |>
-          select(- c(Date, Id))
+        x <- read_table(pool) |>
+          filter(Date == input$date |> as.character())
         if (nrow(x) == 0) {
-          x <- x |> add_rows(3)
+          x <- x |>add_rows(3)
         }
-        return(x)
+        return(x |> select(- c(Date, Id)))
     }) |>
       bindEvent(input$date)
 

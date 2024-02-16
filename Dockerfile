@@ -1,38 +1,30 @@
 ## Using older version of R due to rhandsontable date bug
 ## renv.lock was changed to reflect 4.2.2
-FROM openanalytics/r-ver:4.2.2
+FROM rocker/shiny-verse:4.2.2
 
 LABEL maintainer="Adam Sadowski <asadowsk@uoguelph.ca>"
 
-# system libraries of general use
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    pandoc \
-    pandoc-citeproc \
-    libcurl4-gnutls-dev \
-    libcairo2-dev \
-    libxt-dev \
-    libssl-dev \
-    libssh2-1-dev \
-    libssl1.1 \
-    && rm -rf /var/lib/apt/lists/*
+# For igraph from dm (GH issue: may become Suggested)
+RUN apt-get -y update \
+    && apt-get -y install \
+    libglpk-dev \
+    libgmp3-dev \
+    libxml2-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/
 
-# system library dependency
-RUN apt-get update && apt-get install -y \
-    libmpfr-dev \
-    && rm -rf /var/lib/apt/lists/*
+# renv install
+RUN R -e "install.packages('renv', repos = c(CRAN = 'https://cloud.r-project.org'))"
 
-# install dependencies of the app
-COPY renv.lock .
-RUN R -q -e "renv::init();renv::restore()"
+RUN mkdir /home/app
+WORKDIR /home/app
 
-# copy the app to the image
-RUN mkdir /root/police-maintenance
-COPY . /root/police-maintenance
+# Copy application code
+COPY . .
 
-COPY Rprofile.site /usr/local/lib/R/etc/
+# Install dependencies
+RUN Rscript -e 'renv::restore(prompt = FALSE)'
 
 EXPOSE 3838
 
-## Can change to rhino::app() but need to change WORKDIR first as
-## rhino::app() does not take a path?
-CMD ["R", "-q", "-e", "shiny::runApp('/root/police-maintenance')"]
+CMD Rscript /home/app/app.R

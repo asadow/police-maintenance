@@ -1,6 +1,6 @@
 {
     "dialog-state": {
-        "query": "clock",
+        "query": "dm_",
         "path": "",
         "regex": false,
         "caseSensitive": false,
@@ -9,7 +9,7 @@
         "useGitGrep": true,
         "excludeGitIgnore": true,
         "excludeFilePatterns": [],
-        "resultsCount": 0,
+        "resultsCount": 5,
         "errorCount": 0,
         "replaceErrors": "",
         "projectRelative": true

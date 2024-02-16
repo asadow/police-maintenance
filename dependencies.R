@@ -1,7 +1,10 @@
 # This file allows packrat (used by rsconnect during deployment) to pick up dependencies.
 library(DBI)
 library(dbplyr)
+library(dm)
+library(pool)
 library(rhandsontable)
 library(rhino)
 library(RPostgres)
+library(shinylogs)
 library(usethis)

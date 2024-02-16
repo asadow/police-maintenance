@@ -27,13 +27,13 @@ hot_format <- function(.data) {
     hot_col("Issue", halign = "htLeft") |>
     # hot_col(col = "am/pm", type = "dropdown", source = c("am", "pm")) |>
     hot_col(
-      col = c(
-        "Trade Responsible",
-        "Trade Attended 1", "Trade Attended 2",
-        "Staff Attended 1", "Staff Attended 2",
-        "Staff Called 1", "Staff Called 2"
-        ),
+      col = c("Trade Responsible", "Trade Attended 1", "Trade Attended 2"),
       type = "dropdown", source = str_sort(trade$trade)
+    ) |>
+    hot_col(
+      col = c("Staff Attended 1", "Staff Attended 2",
+              "Staff Called 1", "Staff Called 2"),
+      type = "dropdown", source = str_sort(employee$name)
     ) |>
   #   ,
   # "Staff Called 1", "Staff Called 2"

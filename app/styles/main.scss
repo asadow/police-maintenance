@@ -1,0 +1,18 @@
+.today {
+  color: #6c9023;
+}
+
+.not-today {
+  color: #bf3100;
+}
+
+body {
+  font-family: "Roboto", Sans-Serif;
+}
+
+#outer {
+  border: 0.05em solid red;
+  width:100%;
+  display: flex;
+  justify-content: center;
+}

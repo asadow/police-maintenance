@@ -1,13 +1,20 @@
-.today {
-  color: #6c9023;
-}
+.date {
+  font-weight: bold;
+  border-radius: 3px;
+  padding: 10px;
+  display: grid;
+  justify-items: center;
+  .today {
+    color: #6c9023;
+  }
 
-.not-today {
-  color: #bf3100;
+  .not-today {
+    color: #bf3100;
+  }
 }
 
 body {
-  font-family: "Roboto", Sans-Serif;
+  font-family: Times New Roman;
 }
 
 #outer {

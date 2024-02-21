@@ -12,5 +12,5 @@ read_table <- function(pool) {
       \(x) str_replace_all(x, "\\.", " ") |> str_trim(),
       everything()
     ) |>
-    rename("am/pm" = "am pm", "Work Order #" = "Work Order")
+    rename("Work Order #" = "Work Order")
 }

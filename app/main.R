@@ -7,6 +7,7 @@ box::use(
   dm[...],
   dplyr[...],
   lubridate[...],
+  shiny.fluent[...],
   shinylogs[track_usage, store_json],
   tibble[column_to_rownames, rownames_to_column],
   app/logic/add_rows[add_rows],
@@ -18,23 +19,16 @@ box::use(
 #' @export
 ui <- function(id) {
   ns <- NS(id)
-  # fluidPage(
-    # titlePanel("Police Maintenance Sheet"),
-    # helpText("Changes automatically save. Grey columns are optional."),
-    # dateInput(ns("date"), "Date", value = Sys.Date()),
-    # numericInput(ns("minute"), "Minute", value = 2),
-    # rHandsontableOutput(ns("hot")),
-  # )
-  img <- img(src = "static/images/CSO Colour Logo.jpg", style = "width: 100px")
-  # img2 <- img(src = "static/images/Special constable logo colour.jpg", style = "width: 100px")
+  img <- img(src = "static/images/CSO Colour Logo.jpg",
+             style = "width: 200px")
+  pr <- img(src = "static/images/pr-logo-words_no-line.jpg",
+            style = "width: 400px; padding = 15px")
+  # img2 <- img(src = "static/images/Special constable logo colour.jpg",
+  #             style = "width: 100px")
 
   page(
     theme = bs_theme(primary = "orange"),
     tags$head(
-      ## Roboto font (UG Brand)
-      HTML('<link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">'),
       ## CSO favicon
       ## from www.realfavicongenerator.net
       HTML('<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -46,77 +40,49 @@ ui <- function(id) {
             <meta name="theme-color" content="#ffffff">'),
 
       tags$style(HTML("
-      #result {
+      .container {
+        max-width: 2600px;
         display: grid;
-        grid-template-columns: repeat(5, 50px);
-        gap: 5px;
-        padding: 15px;
+        justify-items: center;
         justify-content: center;
       }
 
-                      "
-      )
+      .container > .handsontable {
+        padding: 10px;
+      }
+
+      .container > .datepicker {
+        padding: 15px;
+        width: 175px;
+      }
+
+      .ms-TextField-wrapper {
+        border-radius: 3px;
+        box-shadow: 0px 0px 5px grey;
+      }
+                      ")
       )
     ),
     div(
-      class = "bg-light my-5 py-3",
+      class = "container",
+      img,
+      pr,
       div(
-        div(class = "container",
-            div(class = "row",
-                div(class = "col-12",
-                    img)),
-            div(class = "row",
-                div(class = "col-12",
-                    dateInput(ns("date"), "Date", value = Sys.Date()))
-                ),
-            div(class = "row",
-                div(class = "col-12",
-                    uiOutput(ns("text")))
-                ),
-            div(class = "row",
-                div(class = "col-12",
-                    rHandsontableOutput(ns("hot"))
-                ),
-            ),
-          ),
-        )
-      )
-    )
-    #   div(
-    #     class = "container",
-    #     h4("Police Maintenance Sheet"),
-    #     helpText("Changes automatically save. Grey columns are optional."),
-    #     dateInput(ns("date"), "Date", value = Sys.Date())
-    #   )
-    # ),
-    # div(
-    #   rHandsontableOutput(ns("hot")),
-    #   style = "padding: 10px"
-    #   ),
-    # br(),
-    # tags$style("#grid {
-    #                   display: grid;
-    #                   grid-template-columns: 100px 1fr;
-    #                   grid-gap: 300px;
-    #                   }"),
-    # tags$style("#grid1 {
-    #                   display: grid;
-    #                   grid-template-columns: 1fr;
-    #                   }"),
-    # tags$style(".container {
-    #   display: flex;
-    #   flex-direction: row;
-    #   text-align: center;
-    #   padding: 50px
-    # }"),
-    # tags$style(".container1 {
-    #   display: flex;
-    #   flex-direction: row;
-    #   text-align: center;
-    #   padding: 50px
-    # }"),
-  # )
+        class = "datepicker",
+        DatePicker.shinyInput(ns("date"), isMonthPickerVisible = FALSE)
+        # dateInput(ns("date"), NULL, value = Sys.Date()),
+        ),
 
+      # div(class = "date",
+      #     uiOutput(ns("text")),
+      #     ),
+      div(
+        rHandsontableOutput(ns("hot")),
+        class = "handsontable"
+      ),
+      # img2
+    )
+  )
 }
 
 #' @export
@@ -130,7 +96,7 @@ server <- function(id) {
         x <- input$hot |> hot_to_r()
         x <- x |>
           mutate(
-            Date = input$date,
+            Date = as.Date(input$date),
             Id = paste0(row_number(), " - ", Date)
           )
         dm <- dm(police_maintenance = x)
@@ -143,7 +109,7 @@ server <- function(id) {
 
     df_init <- reactive({
         x <- read_table(pool) |>
-          filter(Date == input$date |> as.character())
+          filter(Date == as.Date(input$date) |> as.character())
         if (nrow(x) == 0) {
           x <- x |>add_rows(3)
         }
@@ -155,17 +121,18 @@ server <- function(id) {
       df_init() |> hot_format()
     })
 
-    output$text = renderUI({
-      # Refresh the date every X hours in case app is left on?
-      if (input$date == Sys.Date()) {
-        value <- "Date is today."
-        value_style <- "today"
-      } else {
-        value <- "Date is not today."
-        value_style <- "not-today"
-      }
-      HTML(glue("<h4><span class = '{value_style}'>{value}</span></h4>"))
-    })
+    # output$text = renderUI({
+    #   # Refresh the date every X hours in case app is left on?
+    #   if (input$date == Sys.Date()) {
+    #     value <- "Sheet is today's."
+    #     value_style <- "date today"
+    #   } else {
+    #     value <- "Sheet is not today's."
+    #     value_style <- "date not-today"
+    #   }
+    #   HTML(glue("<h4><span class = '{value_style}'>{value}</span></h4>"))
+    # }) |>
+    #   bindEvent(input$date)
 
   })
 }

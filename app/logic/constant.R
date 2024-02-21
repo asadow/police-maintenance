@@ -37,12 +37,16 @@ onStop(function() {
 
 #' @export
 employee <- dbReadTable(pool, "employee") |>
-  mutate(name = glue("{given_names} {surname}")) |>
+  mutate(
+    name = glue("{given_names} {surname}"),
+    name = gsub("\\b(\\w)([\\w]+)", "\\1\\L\\2", name, perl = TRUE)
+    ) |>
+  filter(status == "ACTIVE") |>
   as.data.frame()
 
 #' @export
 trade <- dbReadTable(pool, "trade") |>
-  mutate(trade = glue("{trade} - {trade_desc}")) |>
+  mutate(trade = glue("{trade_desc}") |> str_to_title()) |>
   distinct(trade, .keep_all = T)
 
 #' @export

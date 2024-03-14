@@ -1,6 +1,6 @@
 {
     "dialog-state": {
-        "query": "employee",
+        "query": "init",
         "path": "",
         "regex": false,
         "caseSensitive": false,
@@ -9,7 +9,7 @@
         "useGitGrep": true,
         "excludeGitIgnore": true,
         "excludeFilePatterns": [],
-        "resultsCount": 4,
+        "resultsCount": 5,
         "errorCount": 0,
         "replaceErrors": "",
         "projectRelative": true

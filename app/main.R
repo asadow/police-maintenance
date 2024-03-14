@@ -99,10 +99,13 @@ server <- function(id) {
             Date = as.Date(input$date),
             Id = paste0(row_number(), " - ", Date)
           )
-        dm <- dm(police_maintenance = x)
-        dm <- copy_dm_to(conn, dm, temporary = TRUE)
-        dm_db <- dm_from_con(conn, "police_maintenance")
-        final <- dm_rows_upsert(dm_db, dm, in_place = TRUE)
+        ## Set current table for upserting
+        dm_now <- dm(cso_maintenance = x)
+        dm_now <- copy_dm_to(conn, dm_now, temporary = TRUE)
+        ## Pull existing table
+        dm_db <- dm_from_con(conn, "cso_maintenance")
+        ## Upsert
+        final <- dm_rows_upsert(dm_db, dm_now, in_place = TRUE)
         print("saved")
       }
     })
@@ -113,7 +116,7 @@ server <- function(id) {
         if (nrow(x) == 0) {
           x <- x |>add_rows(3)
         }
-        return(x |> select(- c(Date, Id)))
+        return(x |> select(- c(Date)))
     }) |>
       bindEvent(input$date)
 

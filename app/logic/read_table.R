@@ -7,7 +7,7 @@ box::use(
 )
 
 read_table <- function(pool) {
-  dbReadTable(pool, "police_maintenance") |>
+  dbReadTable(pool, "cso_maintenance") |>
     rename_with(
       \(x) str_replace_all(x, "\\.", " ") |> str_trim(),
       everything()

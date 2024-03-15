@@ -1,23 +1,34 @@
 box::use(
   rhandsontable[...],
+  dplyr[...],
+  tidyr[...],
+  glue[glue],
   stringr[str_sort, str_pad],
   app/logic/constant[building, trade, employee],
 )
 
+valid_times <- tibble(hour = 0:23) |>
+  expand_grid(minute = 0:59) |>
+  mutate(
+    across(c(hour, minute), \(x) str_pad(x, 2, side = "left", pad = "0")),
+    time = glue("{hour}{minute}")
+  ) |>
+  pull(time) |>
+  as.character()
+
 hot_format <- function(.data) {
   .data |>
-    rhandsontable(rowHeaders = NULL, height = 700) |>
+    rhandsontable(rowHeaders = NULL, height = 2000) |>
     hot_cols(
       col = names(.data),
       manualColumnResize = TRUE,
       allowInvalid = TRUE,
       copyable = TRUE,
       strict = FALSE,
-      colWidths = c(80, 60, 250, 70, 350, 80,
-                    rep(150, 7), 130, 130),
+      colWidths = c(80, 70, 250, 70, 350, 80, rep(150, 7), 130, 130),
       renderer = "
              function (instance, td, row, col, prop, value, cellProperties) {
-               Handsontable.renderers.NumericRenderer.apply(this, arguments);
+               Handsontable.renderers.TextRenderer.apply(this, arguments);
                if ([11, 12, 13, 14].includes(col)) {
                 td.style.background = 'lightgrey';
                }
@@ -41,8 +52,7 @@ hot_format <- function(.data) {
       ) |>
     hot_table(highlightCol = TRUE, highlightRow = TRUE) |>
     hot_validate_numeric("Work Order #", min = 100000, max = 999999) |>
-    hot_validate_character(
-      "Time",
-      choices = 0:2400 |> str_pad(width = 4, pad = "0")
-      )
+    ## Open issue; if column does not exist, not a good error
+    ## Error in [[: attempt to select less than one element in get1index
+    hot_validate_character("Time", choices = valid_times)
 }

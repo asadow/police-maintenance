@@ -114,14 +114,14 @@ server <- function(id) {
         x <- read_table(pool) |>
           filter(Date == as.Date(input$date) |> as.character())
         if (nrow(x) == 0) {
-          x <- x |>add_rows(3)
+          x <- x |> add_rows(20)
         }
-        return(x |> select(- c(Date)))
+        return(x |> select(- c(Id, Date)))
     }) |>
       bindEvent(input$date)
 
     output$hot = renderRHandsontable({
-      df_init() |> hot_format()
+      df_init() |>  hot_format()
     })
 
     # output$text = renderUI({
